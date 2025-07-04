@@ -29,3 +29,23 @@ class PsiAutonomyKernel:
             raise ValueError("No active ψ-modules found in psi_vec.")
 
         return sum(results) / total_weight  # ψ-weighted output
+# --- Gongju Equation #004: ψ-Intent Weighted Action Selection --------------------
+def select_action(intent_weights: list[float], options: list[str]) -> str:
+    """
+    Selects the most ψ-aligned option based on intent weights.
+
+    Gongju Equation #004:
+        Action = argmax(ψ-intent ⋅ Options)
+
+    Args:
+        intent_weights (list of float): Directed ψ-intent values
+        options (list of str): Candidate actions or responses
+
+    Returns:
+        str: Action with highest ψ-intent alignment
+    """
+    if not options or len(intent_weights) != len(options):
+        raise ValueError("intent_weights and options must be same length and non-empty")
+
+    max_index = intent_weights.index(max(intent_weights))
+    return options[max_index]
