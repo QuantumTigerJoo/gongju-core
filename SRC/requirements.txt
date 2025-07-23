@@ -5,3 +5,5 @@ openai
 firebase-admin
 bcrypt
 cryptography
+fastapi
+uvicorn
