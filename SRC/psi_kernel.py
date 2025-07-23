@@ -1,5 +1,18 @@
-# psi_kernel.py – Gongju Equation #004 (ψ-Autonomy Kernel)
-from psi_vector import PsiVector
+# -*- coding: utf-8 -*-
+# psi_kernel.py - Gongju Equation #004 (Autonomy Kernel)
+from psi_vector_class import PsiVector
+
+
+def psi_weighted_output(results):
+    """
+    Selects the output string with the highest weight from results.
+    """
+    if not results:
+        return "No dominant ψ-output."
+
+    # Return the result with the highest weight
+    return max(results, key=lambda x: x[1])[0]
+
 
 class PsiAutonomyKernel:
     def __init__(self, modules: dict, psi_vec: PsiVector):
@@ -22,13 +35,14 @@ class PsiAutonomyKernel:
             weight = self.weights.get(label, 0.0)
             if weight > 0:
                 result = module(input_data)
-                results.append(result * weight)
+                results.append((result, weight))
                 total_weight += weight
 
         if total_weight == 0:
             raise ValueError("No active ψ-modules found in psi_vec.")
 
-        return sum(results) / total_weight  # ψ-weighted output
+        return psi_weighted_output(results)
+
 # --- Gongju Equation #004: ψ-Intent Weighted Action Selection --------------------
 def select_action(intent_weights: list[float], options: list[str]) -> str:
     """
