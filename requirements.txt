@@ -1,0 +1,9 @@
+gradio
+flask
+requests
+openai
+firebase-admin
+bcrypt
+cryptography
+fastapi
+uvicorn
