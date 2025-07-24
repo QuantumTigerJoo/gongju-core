@@ -1,8 +1,8 @@
 # gongju_thought.py
 
 import torch
-from psi_vector_class import PsiVector
-from gongju_core import GongjuPsiMind
+from SRC.psi_vector_class import PsiVector
+from SRC.gongju_core import GongjuPsiMind
 
 
 def psi_thought(input_tensor: torch.Tensor, psi_vec: PsiVector) -> float:
