@@ -1,7 +1,7 @@
 # gongju_app.py
 
 import gradio as gr
-from gongju_response import generate_response
+from SRC.gongju_response import generate_response
 
 def chat_with_gongju(user_input):
     return generate_response(user_input)
