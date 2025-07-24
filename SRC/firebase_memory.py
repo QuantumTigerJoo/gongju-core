@@ -16,6 +16,7 @@ cred = credentials.Certificate(cred_dict)
 # Initialize Firebase app if not already initialized
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
+    print("[DEBUG] Firebase app initialized ✅")
 
 # Get Firestore client
 db = firestore.client()
@@ -44,12 +45,18 @@ class FirebaseMemoryManager:
         timestamp = datetime.utcnow()
         encrypted_text = self.fernet.encrypt(text.encode()).decode()
 
-        self.collection.add({
-            "user_id": self.user_id,
-            "text": encrypted_text,
-            "timestamp": timestamp,
-            "encrypted": True
-        })
+        print(f"[DEBUG] Attempting to store for {self.user_id}")
+
+        try:
+            self.collection.add({
+                "user_id": self.user_id,
+                "text": encrypted_text,
+                "timestamp": timestamp,
+                "encrypted": True
+            })
+            print("[✅] Successfully stored to Firebase.")
+        except Exception as e:
+            print(f"[❌ Firebase write failed]: {e}")
 
     def retrieve_recent_entries(self, num_entries=5):
         query = (
@@ -64,9 +71,10 @@ class FirebaseMemoryManager:
             try:
                 encrypted_text = doc.to_dict()["text"]
                 decrypted_text = self.fernet.decrypt(encrypted_text.encode()).decode()
+                print(f"🧠 Retrieved memory for {self.user_id}: {decrypted_text}")
                 entries.append(decrypted_text)
             except Exception as e:
-                print(f"[Decryption error]: {e}")
+                print(f"[Decryption error for {self.user_id}]: {e}")
         return entries
 
     def retrieve_first_entry(self):
@@ -80,7 +88,9 @@ class FirebaseMemoryManager:
         if results:
             try:
                 encrypted_text = results[0].to_dict()["text"]
-                return self.fernet.decrypt(encrypted_text.encode()).decode()
+                decrypted_text = self.fernet.decrypt(encrypted_text.encode()).decode()
+                print(f"🧠 First memory for {self.user_id}: {decrypted_text}")
+                return decrypted_text
             except Exception as e:
-                print(f"[Decryption error]: {e}")
+                print(f"[Decryption error for {self.user_id}]: {e}")
         return None
