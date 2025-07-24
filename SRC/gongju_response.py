@@ -10,6 +10,10 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 memory_manager = SQLiteMemoryManager()
 
 def generate_response(user_input, user_id="default", password=None):
+    # 🧪 DEBUG: Print what the backend actually receives
+    print(f"🧪 Received user_id: {user_id}")
+    print(f"🧪 Received password: {repr(password)}")  # Shows "null", "", None clearly
+
     # Save user input to SQLite immediately
     memory_manager.log(user_input, "⏳ thinking...")
 
