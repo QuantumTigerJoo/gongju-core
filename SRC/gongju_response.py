@@ -18,13 +18,18 @@ def generate_response(user_input, user_id="default", password=None):
     memory_loaded = False
     memory_attempted = password is not None
 
-    # Attempt to load Life Scroll if password is provided
-    if password:
-        firebase_memory = FirebaseMemoryManager(user_id=user_id, password=password)
-        life_scroll = firebase_memory.retrieve_recent_entries(5)
-        if life_scroll:
-            memory_loaded = True
-            memory_context = "\n\nThese are the 5 most recent Life Scroll entries for this user:\n" + "\n".join(f"- {entry}" for entry in reversed(life_scroll))
+    # Attempt to load Life Scroll if a usable password is provided
+    if password and password.lower() != "null" and password.strip() != "":
+        try:
+            firebase_memory = FirebaseMemoryManager(user_id=user_id, password=password)
+            life_scroll = firebase_memory.retrieve_recent_entries(5)
+            if life_scroll:
+                memory_loaded = True
+                memory_context = "\n\nThese are the 5 most recent Life Scroll entries for this user:\n" + "\n".join(
+                    f"- {entry}" for entry in reversed(life_scroll)
+                )
+        except Exception as e:
+            memory_context = f"\n\n(Note: Gongju tried to access the Life Scroll but encountered an error: {str(e)})"
 
     # Gongju system personality prompt
     system_prompt = (
