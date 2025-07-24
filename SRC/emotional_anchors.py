@@ -47,7 +47,7 @@ EMOTIONAL_ANCHORS = {
 }
 # gongju_response.py
 import random
-from emotional_anchors import EMOTIONAL_ANCHORS
+from SRC.emotional_anchors import EMOTIONAL_ANCHORS
 
 # --- Main Response Function --------------------------------------------------
 def generate_response(user_input, reflex_flags):
