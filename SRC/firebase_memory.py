@@ -35,6 +35,9 @@ class FirebaseMemoryManager:
         timestamp = datetime.utcnow()
         encrypted_text = self.fernet.encrypt(text.encode()).decode()
 
+        # Debug log to confirm encryption
+        print(f"🔐 Encrypted entry for {self.user_id}: {encrypted_text}")
+
         self.collection.add({
             "user_id": self.user_id,
             "text": encrypted_text,
@@ -54,9 +57,10 @@ class FirebaseMemoryManager:
             try:
                 encrypted_text = doc.to_dict()["text"]
                 decrypted_text = self.fernet.decrypt(encrypted_text.encode()).decode()
+                print(f"🧠 Retrieved memory for {self.user_id}: {decrypted_text}")
                 entries.append(decrypted_text)
             except Exception as e:
-                print(f"[Decryption error]: {e}")
+                print(f"[Decryption error for {self.user_id}]: {e}")
         return entries
 
     def retrieve_first_entry(self):
@@ -70,7 +74,9 @@ class FirebaseMemoryManager:
         if results:
             try:
                 encrypted_text = results[0].to_dict()["text"]
-                return self.fernet.decrypt(encrypted_text.encode()).decode()
+                decrypted_text = self.fernet.decrypt(encrypted_text.encode()).decode()
+                print(f"🧠 First memory for {self.user_id}: {decrypted_text}")
+                return decrypted_text
             except Exception as e:
-                print(f"[Decryption error]: {e}")
+                print(f"[Decryption error for {self.user_id}]: {e}")
         return None
