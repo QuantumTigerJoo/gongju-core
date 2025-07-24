@@ -1,5 +1,5 @@
 from gongju_response import generate_response
-from sqlite_memory import SQLiteMemoryManager
+from SRC.sqlite_memory import SQLiteMemoryManager
 
 # Initialize memory
 memory = SQLiteMemoryManager("gongju_memory.db")
