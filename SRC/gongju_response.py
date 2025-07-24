@@ -1,6 +1,6 @@
 import os
 import openai
-from sqlite_memory import SQLiteMemoryManager
+from SRC.sqlite_memory import SQLiteMemoryManager
 
 # Initialize OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
