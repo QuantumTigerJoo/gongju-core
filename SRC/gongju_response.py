@@ -1,7 +1,7 @@
 import os
 import openai
 from SRC.sqlite_memory import SQLiteMemoryManager
-from SRC.firebase_memory import FirebaseMemoryManager
+from SRC.supabase_memory import SupabaseMemoryManager
 
 # Initialize OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -21,22 +21,22 @@ def generate_response(user_input, user_id="default", password=None):
     memory_context = ""
     memory_loaded = False
     memory_attempted = password is not None and password.strip() != "" and password.lower() != "null"
-    firebase_memory = None
+    supabase_memory = None
 
     if memory_attempted:
         try:
-            firebase_memory = FirebaseMemoryManager(user_id=user_id, password=password)
-            life_scroll = firebase_memory.retrieve_recent_entries(5)
+            supabase_memory = SupabaseMemoryManager(user_id=user_id, password=password)
+            life_scroll = supabase_memory.retrieve_recent_entries(5)
             if life_scroll:
                 memory_loaded = True
                 memory_context = "\n\nThese are the 5 most recent Life Scroll entries for this user:\n" + "\n".join(
                     f"- {entry}" for entry in reversed(life_scroll)
                 )
             else:
-                print(f"[🧪 Firebase] No entries found for user_id: {user_id}")
+                print(f"[🧪 Supabase] No entries found for user_id: {user_id}")
         except Exception as e:
             memory_context = f"\n\n(Note: Gongju tried to access the Life Scroll but encountered an error: {str(e)})"
-            print(f"[🚨 Firebase Error] {str(e)}")
+            print(f"[🚨 Supabase Error] {str(e)}")
 
     # 🌸 System prompt logic
     system_prompt = (
@@ -76,12 +76,12 @@ def generate_response(user_input, user_id="default", password=None):
     # 📝 Save reply to local memory for debugging/log
     memory_manager.log(user_input, reply)
 
-    # ✅ Save reply to Firebase if user attempted login
-    if memory_attempted and firebase_memory:
+    # ✅ Save reply to Supabase if user attempted login
+    if memory_attempted and supabase_memory:
         try:
-            firebase_memory.store_entry(reply)
-            print(f"[✅ Firebase] Memory stored successfully for user_id: {user_id}")
+            supabase_memory.store_entry(reply)
+            print(f"[✅ Supabase] Memory stored successfully for user_id: {user_id}")
         except Exception as e:
-            print(f"[❌ Firebase Write Error] {str(e)}")
+            print(f"[❌ Supabase Write Error] {str(e)}")
 
     return reply
