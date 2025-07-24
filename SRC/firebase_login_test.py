@@ -1,4 +1,4 @@
-from firebase_memory import FirebaseMemoryManager
+from SRC.firebase_memory import FirebaseMemoryManager
 
 memory_manager = FirebaseMemoryManager()
 user_id = "Joosace"
