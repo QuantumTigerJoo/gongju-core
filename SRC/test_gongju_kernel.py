@@ -1,5 +1,5 @@
-from psi_kernel import PsiAutonomyKernel
-from psi_vector_class import PsiVector
+from SRC.psi_kernel import PsiAutonomyKernel
+from SRC.psi_vector_class import PsiVector
 
 
 
