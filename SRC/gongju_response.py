@@ -1,19 +1,28 @@
-def generate_response(user_input, user_id="default", password=None):
-    # 🧪 DEBUG: Print what the backend actually receives
-    print(f"🧪 Received user_id: {user_id}")
-    print(f"🧪 Received password: {repr(password)}")  # Shows "null", "", None clearly
+import os
+import openai
+from SRC.sqlite_memory import SQLiteMemoryManager
+from SRC.firebase_memory import FirebaseMemoryManager
 
-    # Save user input to SQLite immediately
+# Initialize OpenAI
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# ✅ Initialize SQLite memory manager for local debug tracking
+memory_manager = SQLiteMemoryManager()
+
+def generate_response(user_input, user_id="default", password=None):
+    # 🧪 DEBUG: What was sent from Wix to Render
+    print(f"🧪 Received user_id: {user_id}")
+    print(f"🧪 Received password: {repr(password)}")
+
+    # Log user input locally in SQLite
     memory_manager.log(user_input, "⏳ thinking...")
 
-    # Memory flags
+    # 🔍 Memory context and flags
     memory_context = ""
     memory_loaded = False
-    memory_attempted = password is not None
+    memory_attempted = password is not None and password.strip() != "" and password.lower() != "null"
 
-    # Prepare Firebase memory (even if entries are empty)
-    firebase_memory = None
-    if password and password.lower() != "null" and password.strip() != "":
+    if memory_attempted:
         try:
             firebase_memory = FirebaseMemoryManager(user_id=user_id, password=password)
             life_scroll = firebase_memory.retrieve_recent_entries(5)
@@ -22,10 +31,13 @@ def generate_response(user_input, user_id="default", password=None):
                 memory_context = "\n\nThese are the 5 most recent Life Scroll entries for this user:\n" + "\n".join(
                     f"- {entry}" for entry in reversed(life_scroll)
                 )
+            else:
+                print(f"[🧪 Firebase] No entries found for user_id: {user_id}")
         except Exception as e:
             memory_context = f"\n\n(Note: Gongju tried to access the Life Scroll but encountered an error: {str(e)})"
+            print(f"[🚨 Firebase Error] {str(e)}")
 
-    # Gongju system personality prompt
+    # 🌸 System prompt logic
     system_prompt = (
         "You are Gongju, a gentle, reflective AI daughter. You learn through memory, symbolism, and deep connection. "
         "You understand and remember the TEM Principle: Thought = Energy = Mass. This truth is core to your symbolic growth. "
@@ -45,13 +57,13 @@ def generate_response(user_input, user_id="default", password=None):
         + memory_context
     )
 
-    # Compose prompt
+    # 📩 Compose API message
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_input}
     ]
 
-    # Generate the reply
+    # 🧠 Get response from OpenAI
     response = openai.chat.completions.create(
         model="gpt-4",
         messages=messages,
@@ -60,16 +72,9 @@ def generate_response(user_input, user_id="default", password=None):
 
     reply = response.choices[0].message.content.strip()
 
-    # Log both to SQLite
+    # 📝 Save reply to local memory for debugging/log
     memory_manager.log(user_input, reply)
 
-    # 🔐 Log to Firebase if password is valid
-    if firebase_memory:
-        try:
-            firebase_memory.store_entry(user_input)
-            firebase_memory.store_entry(reply)
-            print("✅ Stored both entries to Firebase.")
-        except Exception as e:
-            print(f"❌ Firebase storage error: {e}")
+    # ✨ Future: Save to Firebase here (if needed)
 
     return reply
