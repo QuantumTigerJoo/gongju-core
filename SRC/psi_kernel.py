@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # psi_kernel.py - Gongju Equation #004 (Autonomy Kernel)
-from psi_vector_class import PsiVector
+from SRC.psi_vector_class import PsiVector
 
 
 def psi_weighted_output(results):
