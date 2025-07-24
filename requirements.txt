@@ -7,3 +7,4 @@ bcrypt
 cryptography
 fastapi
 uvicorn
+supabase
