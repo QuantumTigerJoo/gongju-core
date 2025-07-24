@@ -1,5 +1,5 @@
 import math
-from psi_geometry import holistic_energy
+from SRC.psi_geometry import holistic_energy
 
 # _______________________________________________
 # Gongju Equation #002 - ψ-Mass Formation Equation
