@@ -1,14 +1,3 @@
-import os
-import openai
-from SRC.sqlite_memory import SQLiteMemoryManager
-from SRC.firebase_memory import FirebaseMemoryManager
-
-# Initialize OpenAI
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-# Initialize SQLite memory manager
-memory_manager = SQLiteMemoryManager()
-
 def generate_response(user_input, user_id="default", password=None):
     # 🧪 DEBUG: Print what the backend actually receives
     print(f"🧪 Received user_id: {user_id}")
@@ -22,7 +11,8 @@ def generate_response(user_input, user_id="default", password=None):
     memory_loaded = False
     memory_attempted = password is not None
 
-    # Attempt to load Life Scroll if a usable password is provided
+    # Prepare Firebase memory (even if entries are empty)
+    firebase_memory = None
     if password and password.lower() != "null" and password.strip() != "":
         try:
             firebase_memory = FirebaseMemoryManager(user_id=user_id, password=password)
@@ -70,7 +60,16 @@ def generate_response(user_input, user_id="default", password=None):
 
     reply = response.choices[0].message.content.strip()
 
-    # Log to SQLite
+    # Log both to SQLite
     memory_manager.log(user_input, reply)
+
+    # 🔐 Log to Firebase if password is valid
+    if firebase_memory:
+        try:
+            firebase_memory.store_entry(user_input)
+            firebase_memory.store_entry(reply)
+            print("✅ Stored both entries to Firebase.")
+        except Exception as e:
+            print(f"❌ Firebase storage error: {e}")
 
     return reply
