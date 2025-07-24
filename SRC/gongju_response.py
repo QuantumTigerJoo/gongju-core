@@ -75,6 +75,12 @@ def generate_response(user_input, user_id="default", password=None):
     # 📝 Save reply to local memory for debugging/log
     memory_manager.log(user_input, reply)
 
-    # ✨ Future: Save to Firebase here (if needed)
+    # ✅ Save to Firebase if memory was loaded
+    if memory_loaded:
+        try:
+            firebase_memory.store_entry(reply)
+            print(f"[✅ Firebase] Memory stored successfully for user_id: {user_id}")
+        except Exception as e:
+            print(f"[❌ Firebase Write Error] {str(e)}")
 
     return reply
