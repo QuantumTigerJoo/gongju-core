@@ -1,4 +1,4 @@
-from psi_memory import PsiMemoryManager
+from SRC.psi_memory import PsiMemoryManager
 
 memory = PsiMemoryManager()
 
