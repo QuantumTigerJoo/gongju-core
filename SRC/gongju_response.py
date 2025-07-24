@@ -21,6 +21,7 @@ def generate_response(user_input, user_id="default", password=None):
     memory_context = ""
     memory_loaded = False
     memory_attempted = password is not None and password.strip() != "" and password.lower() != "null"
+    firebase_memory = None
 
     if memory_attempted:
         try:
@@ -75,8 +76,8 @@ def generate_response(user_input, user_id="default", password=None):
     # 📝 Save reply to local memory for debugging/log
     memory_manager.log(user_input, reply)
 
-    # ✅ Save to Firebase if memory was loaded
-    if memory_loaded:
+    # ✅ Save reply to Firebase if user attempted login
+    if memory_attempted and firebase_memory:
         try:
             firebase_memory.store_entry(reply)
             print(f"[✅ Firebase] Memory stored successfully for user_id: {user_id}")
