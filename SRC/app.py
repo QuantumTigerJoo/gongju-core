@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from gongju_response import generate_response
+from SRC.gongju_response import generate_response
 
 app = FastAPI()
 
