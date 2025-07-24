@@ -1,4 +1,4 @@
-from psi_memory import PsiMemoryManager
+from SRC.psi_memory import PsiMemoryManager
 
 class PsiReflector:
     def __init__(self, memory_path="gongju_memory.json"):
