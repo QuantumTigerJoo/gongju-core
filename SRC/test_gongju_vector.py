@@ -1,4 +1,4 @@
-from psi_vector_class import PsiVector
+from SRC.psi_vector_class import PsiVector
 
 def test_vector_basic():
     v = PsiVector([1.0, 2.0], ["a", "b"])
