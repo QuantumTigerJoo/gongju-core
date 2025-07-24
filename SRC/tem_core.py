@@ -1,7 +1,7 @@
 # tem_core.py
 
 from collections import Counter
-from psi_memory import PsiMemoryManager
+from SRC.psi_memory import PsiMemoryManager
 
 def extract_symbol_field(n=20):
     """
