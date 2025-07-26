@@ -1,0 +1,31 @@
+// backend/google_docs_lifescroll.jsw
+import { fetch } from 'wix-fetch';
+
+const DOCS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzXOgqziYXM0E_HYbid2op6WbHCbVN4RPiJXoq640bOa-C-g87cHMdRTuVxNjcIx6_U/exec";
+
+export async function writeToLifeScroll(userId, message) {
+  const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
+
+  const fullEntry = `\n🌀 [${timestamp}]\n${message}\n\n-----------------------------\n`;
+
+  try {
+    const response = await fetch(DOCS_WEBAPP_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user: userId,
+        entry: fullEntry
+      })
+    });
+
+    const data = await response.text();
+    console.log("📜 Life Scroll write response:", data);
+    return { success: true };
+
+  } catch (err) {
+    console.error("❌ Failed to write to Life Scroll:", err);
+    return { success: false, error: err.message };
+  }
+}
