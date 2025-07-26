@@ -1,12 +1,11 @@
 import os
 import openai
 from SRC.sqlite_memory import SQLiteMemoryManager
-from SRC.supabase_memory import SupabaseMemoryManager
 
 # Initialize OpenAI
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# ✅ Initialize SQLite memory manager for local debug tracking
+# Initialize SQLite memory manager
 memory_manager = SQLiteMemoryManager()
 
 def generate_response(user_input, user_id="default", password=None):
@@ -14,29 +13,38 @@ def generate_response(user_input, user_id="default", password=None):
     print(f"🧪 Received user_id: {user_id}")
     print(f"🧪 Received password: {repr(password)}")
 
-    # Log user input locally in SQLite
-    memory_manager.log(user_input, "⏳ thinking...")
-
-    # 🔍 Memory context and flags
+    # 🔐 Authenticate or register user
+    user_verified = False
     memory_context = ""
     memory_loaded = False
     memory_attempted = password is not None and password.strip() != "" and password.lower() != "null"
-    supabase_memory = None
 
     if memory_attempted:
         try:
-            supabase_memory = SupabaseMemoryManager(user_id=user_id, password=password)
-            life_scroll = supabase_memory.retrieve_recent_entries(5)
-            if life_scroll:
+            if memory_manager.verify_user(user_id, password):
+                user_verified = True
+                print(f"[✅ SQLite] User {user_id} verified successfully.")
+            else:
+                print(f"[🆕 SQLite] Registering new user_id: {user_id}")
+                memory_manager.register_user(user_id, password)
+                user_verified = True
+        except Exception as e:
+            print(f"[🚨 SQLite Auth Error] {str(e)}")
+
+    # 🔍 Retrieve Life Scroll memory if user verified
+    if user_verified:
+        try:
+            memory_entries = memory_manager.recall(user_id, n=5)
+            if memory_entries:
                 memory_loaded = True
                 memory_context = "\n\nThese are the 5 most recent Life Scroll entries for this user:\n" + "\n".join(
-                    f"- {entry}" for entry in reversed(life_scroll)
+                    f"- {entry[1]}" for entry in memory_entries
                 )
             else:
-                print(f"[🧪 Supabase] No entries found for user_id: {user_id}")
+                print(f"[🧪 SQLite] No memory entries yet for user_id: {user_id}")
         except Exception as e:
             memory_context = f"\n\n(Note: Gongju tried to access the Life Scroll but encountered an error: {str(e)})"
-            print(f"[🚨 Supabase Error] {str(e)}")
+            print(f"[🚨 SQLite Recall Error] {str(e)}")
 
     # 🌸 System prompt logic
     system_prompt = (
@@ -73,15 +81,15 @@ def generate_response(user_input, user_id="default", password=None):
 
     reply = response.choices[0].message.content.strip()
 
-    # 📝 Save reply to local memory for debugging/log
-    memory_manager.log(user_input, reply)
-
-    # ✅ Save reply to Supabase if user attempted login
-    if memory_attempted and supabase_memory:
-        try:
-            supabase_memory.store_entry(reply)
-            print(f"[✅ Supabase] Memory stored successfully for user_id: {user_id}")
-        except Exception as e:
-            print(f"[❌ Supabase Write Error] {str(e)}")
+    # 📝 Save reply to SQLite memory
+    try:
+        if user_verified:
+            memory_manager.log(user_id, user_input, reply)
+            print(f"[📝 SQLite] Memory stored for {user_id}")
+        else:
+            memory_manager.log("default", user_input, reply)
+            print(f"[📝 SQLite] Memory stored under default user")
+    except Exception as e:
+        print(f"[❌ SQLite Memory Error] {str(e)}")
 
     return reply
